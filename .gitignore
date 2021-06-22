@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+*.swo
+*.ply
+/log/
+/training/trained_models/

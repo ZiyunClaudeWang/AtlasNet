@@ -23,6 +23,7 @@ class Visualizer(object):
     def __init__(self, visdom_port, env, http_port):
         super(Visualizer, self).__init__()
         # Create Visdom Server
+        '''
         try:
             if not is_port_in_use(visdom_port):
                 print(f"Launching new visdom instance in port {visdom_port}")
@@ -45,10 +46,12 @@ class Visualizer(object):
         except:
             print("couldn't set up http server.")
 
+        '''
+        vis = visdom.Visdom(server="http://kostas-tensorboard.seas.upenn.edu", 
+                                port=visdom_port, 
+                                env=env)
         self.visdom_port = visdom_port
         self.http_port = http_port
-
-        vis = visdom.Visdom(port=visdom_port, env=env)
         self.vis = vis
 
     def show_pointcloud(self, points, title=None, Y=None):

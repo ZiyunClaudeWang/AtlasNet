@@ -11,17 +11,19 @@ author : Thibault Groueix 01.11.2019
 """
 
 opt = argument_parser.parser()
+
 torch.cuda.set_device(opt.multi_gpu[0])
 my_utils.plant_seeds(random_seed=opt.random_seed)
 import training.trainer as trainer
-
 trainer = trainer.Trainer(opt)
 trainer.build_dataset()
+
 trainer.build_network()
 trainer.build_optimizer()
 trainer.build_losses()
 trainer.start_train_time = time.time()
 
+'''
 if opt.demo:
     with torch.no_grad():
         trainer.demo(opt.demo_input_path)
@@ -31,6 +33,7 @@ if opt.run_single_eval:
     with torch.no_grad():
         trainer.test_epoch()
     sys.exit(0)
+'''
 
 for epoch in range(trainer.epoch, opt.nepoch):
     trainer.train_epoch()

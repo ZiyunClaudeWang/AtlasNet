@@ -16,9 +16,13 @@ def parser():
     parser = argparse.ArgumentParser()
 
     # Training parameters
+    parser.add_argument("--random_data", action="store_true", help="Whether to use random data")
+    parser.add_argument("--use_mask_input", action="store_true", help="Whether to use mask data")
     parser.add_argument("--no_learning", action="store_true", help="Learning mode (batchnorms...)")
     parser.add_argument("--train_only_encoder", action="store_true", help="only train the encoder")
     parser.add_argument('--batch_size', type=int, default=32, help='input batch size')
+    parser.add_argument('--num_views', type=int, default=45, help='Num of views to use')
+    parser.add_argument('--num_input_channels', type=int, default=45, help='Number of channels in input')
     parser.add_argument('--batch_size_test', type=int, default=32, help='input batch size')
     parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
     parser.add_argument('--nepoch', type=int, default=150, help='number of epochs to train for')
@@ -108,6 +112,7 @@ def parser():
             opt.dir_name = "./training/trained_models/atlasnet_autoencoder_1_sphere"
 
 
+    '''
     if exists(join(opt.dir_name, "options.json")):
         # Reload parameters from options.txt if it exists
         with open(join(opt.dir_name, "options.json"), 'r') as f:
@@ -131,6 +136,7 @@ def parser():
                     + " : "
                     + colored(str(my_opt_dict[a]), "cyan")
                 )
+    '''
 
     # Hard code dimension of the template.
     dim_template_dict = {

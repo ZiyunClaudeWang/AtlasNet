@@ -15,10 +15,14 @@ class TrainerIteration(object):
         Arrange to data to be fed to the network.
         :return:
         """
+        self.data.network_input = self.data['input_data']
+        '''
         if self.opt.SVR:
             self.data.network_input = self.data.image.to(self.opt.device)
         else:
             self.data.network_input = self.data.points.transpose(2, 1).contiguous().to(self.opt.device)
+        '''
+
 
     def common_ops(self):
         """
@@ -49,12 +53,17 @@ class TrainerIteration(object):
         self.print_iteration_stats(self.data.loss)
 
     def visualize(self):
-        if self.iteration % 50 == 1:
+        if self.iteration % 10 == 1:
             tmp_string = "train" if self.flags.train else "test"
             self.visualizer.show_pointcloud(self.data.points[0], title=f"GT {tmp_string}")
             self.visualizer.show_pointcloud(self.data.pointsReconstructed[0], title=f"Reconstruction {tmp_string}")
+            if self.opt.use_mask_input:
+                self.visualizer.show_image(self.data.network_input[0, 0, ...], title=f"Input Mask {tmp_string}")
+
+            '''
             if self.opt.SVR:
                 self.visualizer.show_image(self.data.image[0], title=f"Input Image {tmp_string}")
+            '''
 
     def test_iteration(self):
         """

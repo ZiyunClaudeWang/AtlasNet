@@ -1,17 +1,17 @@
 import torch
 import os
-import auxiliary.html_report as html_report
 import numpy as np
 from easydict import EasyDict
 import pymesh
+from visdom import Visdom
+import pdb
 
 from training.trainer_abstract import TrainerAbstract
 import dataset.mesh_processor as mesh_processor
 from training.trainer_iteration import TrainerIteration
 from model.trainer_model import TrainerModel
-from dataset.trainer_dataset import TrainerDataset
+from dataset.EvShapeNet_dataset import TrainerDataset
 from training.trainer_loss import TrainerLoss
-
 
 class Trainer(TrainerAbstract, TrainerLoss, TrainerIteration, TrainerDataset, TrainerModel):
     def __init__(self, opt):
@@ -38,6 +38,7 @@ class Trainer(TrainerAbstract, TrainerLoss, TrainerIteration, TrainerDataset, Tr
         self.display = EasyDict({"recons": []})
         self.colormap = mesh_processor.ColorMap()
 
+
     def train_loop(self):
         """
         Take a single pass on all train data
@@ -46,11 +47,17 @@ class Trainer(TrainerAbstract, TrainerLoss, TrainerIteration, TrainerDataset, Tr
         iterator = self.datasets.dataloader_train.__iter__()
         for data in iterator:
             self.increment_iteration()
-            self.data = EasyDict(data)
+            data_cuda = {}
+            for k in data.keys():
+                data_cuda[k] = data[k].to(self.opt.device)
+            self.data = EasyDict(data_cuda)
+
+            '''
             self.data.points = self.data.points.to(self.opt.device)
             if self.datasets.data_augmenter is not None and not self.opt.SVR:
                 # Apply data augmentation on points
                 self.datasets.data_augmenter(self.data.points)
+            '''
 
             self.train_iteration()
 
@@ -100,16 +107,6 @@ class Trainer(TrainerAbstract, TrainerLoss, TrainerIteration, TrainerDataset, Tr
         self.metro_results = 0
         if (self.flags.build_website or self.opt.run_single_eval) and not self.opt.no_metro:
             self.metro()
-
-        if self.flags.build_website:
-            # Build report using Netvision.
-            self.html_report_data = EasyDict()
-            self.html_report_data.output_meshes = [self.generate_random_mesh() for i in range(3)]
-            log_curves = ["loss_val", "loss_train_total"]
-            self.html_report_data.data_curve = {key: [np.log(val) for val in self.log.curves[key]] for key in
-                                                log_curves}
-            self.html_report_data.fscore_curve = {"fscore": self.log.curves["fscore"]}
-            html_report.main(self, outHtml="index.html")
 
     def generate_random_mesh(self):
         """ Generate a mesh from a random test sample """
@@ -170,5 +167,12 @@ class Trainer(TrainerAbstract, TrainerLoss, TrainerIteration, TrainerDataset, Tr
             self.flags.media_count += 1
 
         print(f"Atlasnet generated mesh at {path}!")
-        mesh_processor.save(mesh, path, self.colormap)
-        return path
+        #mesh_processor.save(mesh, path, self.colormap)
+
+        # show in visdom
+        print(self.opt.visdom_port)
+        v = Visdom(server="http://158.130.55.149", port=self.opt.visdom_port)
+        pdb.set_trace()
+        #v.add_mesh(mesh.
+        #return path
+        return None

@@ -14,6 +14,7 @@ class EncoderDecoder(nn.Module):
         super(EncoderDecoder, self).__init__()
         if opt.SVR:
             self.encoder = resnet.resnet18(pretrained=False, num_classes=opt.bottleneck_size)
+            self.encoder.conv1 = nn.Conv2d(opt.num_input_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
         else:
             self.encoder = PointNet(nlatent=opt.bottleneck_size)
 
